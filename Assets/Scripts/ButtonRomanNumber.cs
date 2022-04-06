@@ -1,12 +1,21 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using TMPro;
 
-public class ButtonForNumber : MonoBehaviour, IPointerClickHandler
+public class ButtonRomanNumber : MonoBehaviour, IPointerClickHandler
 {
+    private TMP_Text numberValue;
     private int buttonNumber;
+    private string numberToString;
 
     public Action<int> ButtonsWasClicked;
+
+    // On awake because it doesn't matter if they are inactive
+    private void awake()
+    {
+        numberValue = GetComponentInChildren<TMP_Text>(includeInactive: true);
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -14,10 +23,16 @@ public class ButtonForNumber : MonoBehaviour, IPointerClickHandler
         Debug.Log("Click on button");
     }
 
-    public void SetButtonNumber(int newButtonNumber)
-    {   
-        if(buttonNumber == newButtonNumber)
-        buttonNumber = newButtonNumber;
+    public void SetButtonNumber(string newButtonNumber)
+    {
+        numberToString = newButtonNumber;
+
+        UpdateView();
+    }
+
+    private void UpdateView()
+    {
+        numberValue.text = buttonNumber.ToString();
     }
 }
 
