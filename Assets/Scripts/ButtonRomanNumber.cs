@@ -5,45 +5,42 @@ using TMPro;
 
 public class ButtonRomanNumber : MonoBehaviour, IPointerClickHandler
 {
-    private TMP_Text numberValue;
-    private int buttonNumber;
-    private string numberToString;
+    public TMP_Text textComponent;
+    
+    //TODO: make private
+    public string romanValue;
 
-    public Action<int> ButtonsWasClicked;
+    public Action<ButtonRomanNumber> ButtonsWasClicked;
 
-    // On awake because it doesn't matter if they are inactive
-    private void awake()
+    private void Awake()
     {
-        numberValue = GetComponentInChildren<TMP_Text>(includeInactive: true);
+        // TODO: parent must be active anyway. Although if not active... it will find them... but not show them until active
+        textComponent = GetComponentInChildren<TMP_Text>(includeInactive: true);
+
+        if (textComponent == null) Debug.Log("Please, ensure this button has Text", this);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        ButtonsWasClicked?.Invoke(buttonNumber);
-        Debug.Log("Click on button");
+        // El index lo tiene que saber el que lo escucha... no el botón
+        ButtonsWasClicked?.Invoke(this);
+
+        //Debug.Log("Button number " + index + " was clicked");
+        //Debug.Log("Button string " + spanishValue + " was clicked");
     }
 
-    public void SetButtonNumber(string newButtonNumber)
+    public void PassRomanNumberToButton(string newButtonNumber)
     {
-        numberToString = newButtonNumber;
+        romanValue = newButtonNumber; // E.g "1"
 
         UpdateView();
     }
 
+    // TODO: Error if they are inactive
     private void UpdateView()
     {
-        numberValue.text = buttonNumber.ToString();
-    }
-}
+        //if (!textComponent.isActiveAndEnabled) return; 
 
-// Maybe this should be base class... or it should be an static... or go in controller?
-public class GameButtons
-{
-    public int min;
-    public int max;
-
-    public bool ButtonHasAnAcceptableValue(int x, int y)
-    {
-        return (x - min) * (max - x) >= 0;
+        textComponent.text = romanValue;
     }
 }

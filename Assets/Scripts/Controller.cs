@@ -2,72 +2,85 @@
 
 public class Controller : MonoBehaviour
 {
-    // for now I will have this class... maybe it's not necessary 
-    public RandomNumberGenerator RandomNumberGenerator;
+    [Header("Select a dictionary")]
+    public DictionaryOfWords dictionary;
 
-    [SerializeField] public ButtonRomanNumber[] listOfButtonsForNumbers;
+    [Header("Select the main root of this controller")]
+    public Transform mainCanvas;   
+    
+    [SerializeField] public ButtonRomanNumber[] listOfButtonsForRomanNumbers;
 
     public StartButton startButton;
 
-    public CanvasForRomanNumbers canvasForNumbers;
+    public CanvasForRomanNumbers canvasForRomanNumbers;
 
-    public Transform mainCanvas;
+    public SpanishText spanishText; // show the first word and then desappears
 
-    public SpanishText spanishText;
+    public string bufferSpanish; // uno
+    public string bufferRoman;     // 1
 
-    public string bufferSpanish;
-    public string bufferRoman;
+    private int indexMarkedAsCorrect;
+
+    public AnimatorController animatorController;
 
     private void Start()
     {
-        FindRandomGenerator();
+        CheckDictionary();
         FindCanvasForRomanNumbers();
         FindCanvasForSpanishNumbers();
-
+        FindAnimatorController();
         FindButtonsForRomanNumbers();
-
-        //FindStartButton();
-
-        GetRandomSpanishNumber(); // this is just a test
-
-        // now I need to pass that random to one of the buttons
-        GetRandoRomanNumber(); // this is for buttons
-
-        ManagerButtonsGame();
+        StartListeningToRomanButtons();
+        FindStartButton();
     }
 
-    private void FindRandomGenerator()
+    #region Find Dependencies 
+
+    private void CheckDictionary()
     {
-        RandomNumberGenerator = FindObjectOfType<RandomNumberGenerator>();
+        if (dictionary == null) Debug.LogWarning("There's no dictionary, please provide one");
     }
 
     private void FindCanvasForRomanNumbers()
     {
-        //canvasForNumbers = mainCanvas.GetComponentInChildren<CanvasForNumbers>(includeInactive: true);
-        //canvasForNumbers.gameObject.SetActive(false);
+        canvasForRomanNumbers = mainCanvas.GetComponentInChildren<CanvasForRomanNumbers>(includeInactive: true);
+        ActivateRomanCanvas(false);
     }
 
     private void FindCanvasForSpanishNumbers()
     {
         spanishText = mainCanvas.GetComponentInChildren<SpanishText>(includeInactive: true);
+        spanishText.gameObject.SetActive(false);
     }
 
     private void FindButtonsForRomanNumbers()
     {
-        listOfButtonsForNumbers = FindObjectsOfType<ButtonRomanNumber>();
-
-        for (int i = 0; i < listOfButtonsForNumbers.Length; i++)
+        listOfButtonsForRomanNumbers = mainCanvas.GetComponentsInChildren<ButtonRomanNumber>(includeInactive: true);
+    }
+    
+    private void StartListeningToRomanButtons()
+    {
+        for (int i = 0; i<listOfButtonsForRomanNumbers.Length; i++)
         {
-            listOfButtonsForNumbers[i].ButtonsWasClicked += ReactToButtonNumberClicked;
+            listOfButtonsForRomanNumbers[i].ButtonsWasClicked += ReactToRomanButton;
         }
     }
 
     private void FindStartButton()
     {
-        startButton = mainCanvas.GetComponentInChildren<StartButton>(includeInactive: true);
+        startButton = FindObjectOfType<StartButton>();
+        if (!startButton) return;
         startButton.StartButtonWasClicked += ReactToStartButton;
     }
 
+    private void FindAnimatorController()
+    {
+        animatorController = FindObjectOfType<AnimatorController>();
+    }
+
+    #endregion
+
+    #region Reaction To Button Actions
 
     private void ReactToStartButton()
     {
@@ -76,69 +89,101 @@ public class Controller : MonoBehaviour
         StartGame();
     }
 
-    private void ReactToButtonNumberClicked(int numberOfButton)
+    private void ReactToRomanButton(ButtonRomanNumber buttonpressed)
     {
-        CheckIfTheOptionIsRight();
+        // this gets the index of button
+        for (int i = 0; i < listOfButtonsForRomanNumbers.Length; i++)
+        {
+            if (listOfButtonsForRomanNumbers[i] == buttonpressed)
+            {
+                Debug.Log("Button " + i + " was pressed");
+                CheckIfTheButtonPressedIsTheRightAnswer(i);
+                return;
+            }
+        }
     }
 
-    private void CheckIfTheOptionIsRight()
+    private void CheckIfTheButtonPressedIsTheRightAnswer(int indexOfButtonPressed)
     {
-
+        if (indexMarkedAsCorrect == indexOfButtonPressed)
+        {
+            Debug.Log("Checkpoint!!! " + indexOfButtonPressed + bufferSpanish);
+        }
     }
 
-    // we must keep track of the [index] cause it's the same for the whole system
+    #endregion
+
+    /// <summary>
+    /// Call to show the Spanish number e.g. "cinco"
+    /// </summary>
     private void GetRandomSpanishNumber()
     {
-        string numberInSpanishWord = DictionaryOfWords.GetRandomSpanishNumberFromDictionary();
+        string numberInSpanishWord = dictionary.GetRandomSpanishNumberFromDictionary();
 
         bufferSpanish = numberInSpanishWord;
 
         spanishText.GetComponent<TMPro.TMP_Text>().text = numberInSpanishWord; // this is a spanish word 
     }
 
-    private void GetRandoRomanNumber()
+    // TODO: no llega a activar si el parent está desactivado.
+    private void StartGame()
     {
-        string numberInRoman = DictionaryOfWords.GetRandomRomanNumberFromDictionary();
+        GetRandomSpanishNumber(); // base of the game
 
-        bufferRoman = numberInRoman;
+        PrepareRomanButtonsToDisplayNewSetOfNumbers();
 
-        //spanishText.GetComponent<TMPro.TMP_Text>().text = numberInRoman; // this is a roman word
+        ActivateRomanCanvas(true);
+    }
 
+    private void ActivateRomanCanvas(bool ToF)
+    {
+        canvasForRomanNumbers.GetComponent<Canvas>().enabled = ToF;
     }
 
     /// <summary>
     /// From the three buttons... choose 1 and pass the same GetRandomSpanish (that one is the correct answer)
     /// </summary>
-    private void ManagerButtonsGame()
+    private void PrepareRomanButtonsToDisplayNewSetOfNumbers()
     {
-        // select one of the three buttons... 
-        var a = Random.Range(0, listOfButtonsForNumbers.Length);
+        // The correct number is the spanish buffer; "Cinco"
+        bufferRoman = dictionary.GetRomanEquivalentForSpanish(spanishValue: bufferSpanish);
 
-        // pass that int value to select a button and change text value
-        listOfButtonsForNumbers[a].SetButtonNumber(bufferSpanish);
+        // select one of the three buttons THIS INT is the correct answer: say button [1]
+        indexMarkedAsCorrect = Random.Range(0, listOfButtonsForRomanNumbers.Length);
 
-        for (int i = 0; i < listOfButtonsForNumbers.Length; i++)
+        // pass the spanish "cinco". Use the random index above. Say use button [1] pass the "ROMAN REFERENCE"
+        listOfButtonsForRomanNumbers[indexMarkedAsCorrect].PassRomanNumberToButton(bufferRoman);
+
+        //parse the rest of number and put random values to them
+        for (int i = 0; i < listOfButtonsForRomanNumbers.Length; i++)
         {
-            if (i == a) continue;
+            // Don't touch the selected one
+            if (i == indexMarkedAsCorrect) continue;
 
-            listOfButtonsForNumbers[i].SetButtonNumber(bufferSpanish);
+            // get some other random number for the rest of buttons
+            string randomRoman = dictionary.GetRandomRomanNumberFromDictionary();
+
+            listOfButtonsForRomanNumbers[i].PassRomanNumberToButton(randomRoman);
         }
     }
 
-    private void StartGame()
+    #region Tests
+
+    public void StartGameDebug()
     {
-        ShowUINumbers();
+        StartGame();
     }
 
-    private void ShowUINumbers()
+    public void GetRandomSpanishNumberDebug()
     {
-        canvasForNumbers.gameObject.SetActive(true);
-
-        for (int i = 0; i < listOfButtonsForNumbers.Length; i++)
-        {
-            //listOfButtonsForNumbers[i].SetButtonNumber(Words.spanishNumbers[i]);
-        }
+        GetRandomSpanishNumber();
     }
 
+    public void GiveMeaRomanNumber()
+    {
+        dictionary.GetRomanEquivalentForSpanish("cinco");
+    }
+
+    #endregion
 
 }
