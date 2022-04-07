@@ -23,6 +23,8 @@ public class Controller : MonoBehaviour
 
     public AnimatorController animatorController;
 
+    public ColorChanger colorChanger;
+
     private void Start()
     {
         CheckDictionary();
@@ -33,6 +35,7 @@ public class Controller : MonoBehaviour
         FindButtonsForRomanNumbers();
         StartListeningToRomanButtons();
         FindStartButton();
+        FindColorChanger();
     }
 
     #region Find Dependencies 
@@ -87,6 +90,11 @@ public class Controller : MonoBehaviour
         animatorController = FindObjectOfType<AnimatorController>();
     }
 
+    private void FindColorChanger()
+    {
+        colorChanger = FindObjectOfType<ColorChanger>();
+    }
+
     #endregion
 
     #region Reaction To Button Actions
@@ -116,7 +124,13 @@ public class Controller : MonoBehaviour
     {
         if (indexMarkedAsCorrect == indexOfButtonPressed)
         {
-            Debug.Log("Checkpoint!!! " + indexOfButtonPressed + bufferSpanish);
+            Debug.Log("You did it!!! " + indexOfButtonPressed + bufferSpanish);
+
+            // Pass button to color Changer
+            colorChanger.ChangeColorToSucceed(listOfButtonsForRomanNumbers[indexOfButtonPressed]);
+
+            // Aciertos
+
         }
     }
 
