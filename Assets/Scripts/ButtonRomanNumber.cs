@@ -39,7 +39,7 @@ public class ButtonRomanNumber : MonoBehaviour, IPointerClickHandler
     // TODO: Error if they are inactive
     private void UpdateView()
     {
-        //if (!textComponent.isActiveAndEnabled) return; 
+        if (!textComponent.isActiveAndEnabled) return; 
 
         textComponent.text = romanValue;
     }

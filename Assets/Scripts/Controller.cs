@@ -14,7 +14,7 @@ public class Controller : MonoBehaviour
 
     public CanvasForRomanNumbers canvasForRomanNumbers;
 
-    public SpanishText spanishText; // show the first word and then desappears
+    public SpanishCanvasText canvasForSpanishNumbers; // show the first word and then desappears
 
     public string bufferSpanish; // uno
     public string bufferRoman;     // 1
@@ -29,6 +29,7 @@ public class Controller : MonoBehaviour
         FindCanvasForRomanNumbers();
         FindCanvasForSpanishNumbers();
         FindAnimatorController();
+        StartListeningToAnimator();
         FindButtonsForRomanNumbers();
         StartListeningToRomanButtons();
         FindStartButton();
@@ -38,19 +39,21 @@ public class Controller : MonoBehaviour
 
     private void CheckDictionary()
     {
-        if (dictionary == null) Debug.LogWarning("There's no dictionary, please provide one");
+        if (dictionary == null) Debug.LogWarning("There's no dictionary, please provide one", this);
     }
 
     private void FindCanvasForRomanNumbers()
     {
         canvasForRomanNumbers = mainCanvas.GetComponentInChildren<CanvasForRomanNumbers>(includeInactive: true);
+
         ActivateRomanCanvas(false);
     }
 
     private void FindCanvasForSpanishNumbers()
     {
-        spanishText = mainCanvas.GetComponentInChildren<SpanishText>(includeInactive: true);
-        spanishText.gameObject.SetActive(false);
+        canvasForSpanishNumbers = mainCanvas.GetComponentInChildren<SpanishCanvasText>(includeInactive: true);
+
+        ActivateSpanishCanvas(false);
     }
 
     private void FindButtonsForRomanNumbers()
@@ -64,6 +67,12 @@ public class Controller : MonoBehaviour
         {
             listOfButtonsForRomanNumbers[i].ButtonsWasClicked += ReactToRomanButton;
         }
+    }
+
+    private void StartListeningToAnimator()
+    {
+        animatorController.StartAnimationFinished += OnSpanishAnimationFinished;
+        animatorController.RomanAnimationFinished += OnRomanAnimationFinished;
     }
 
     private void FindStartButton()
@@ -85,7 +94,7 @@ public class Controller : MonoBehaviour
     private void ReactToStartButton()
     {
         Debug.Log("Start game");
-        startButton.gameObject.SetActive(false);
+
         StartGame();
     }
 
@@ -113,24 +122,25 @@ public class Controller : MonoBehaviour
 
     #endregion
 
-    /// <summary>
-    /// Call to show the Spanish number e.g. "cinco"
-    /// </summary>
-    private void GetRandomSpanishNumber()
-    {
-        string numberInSpanishWord = dictionary.GetRandomSpanishNumberFromDictionary();
-
-        bufferSpanish = numberInSpanishWord;
-
-        spanishText.GetComponent<TMPro.TMP_Text>().text = numberInSpanishWord; // this is a spanish word 
-    }
-
-    // TODO: no llega a activar si el parent está desactivado.
     private void StartGame()
     {
         GetRandomSpanishNumber(); // base of the game
 
+        animatorController.RunStartAnimation(canvasForSpanishNumbers); //Fire and forget
+    }
+
+    private void OnSpanishAnimationFinished()
+    {
+        Debug.Log("Spanish finished");
+
         PrepareRomanButtonsToDisplayNewSetOfNumbers();
+
+        animatorController.RunRomanAnimation(canvasForRomanNumbers);
+    }
+
+    private void OnRomanAnimationFinished()
+    {
+        Debug.Log("Roman Finished");
 
         ActivateRomanCanvas(true);
     }
@@ -138,6 +148,11 @@ public class Controller : MonoBehaviour
     private void ActivateRomanCanvas(bool ToF)
     {
         canvasForRomanNumbers.GetComponent<Canvas>().enabled = ToF;
+    }
+
+    private void ActivateSpanishCanvas(bool ToF)
+    {
+        canvasForSpanishNumbers.GetComponent<Canvas>().enabled = ToF;
     }
 
     /// <summary>
@@ -167,6 +182,19 @@ public class Controller : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Call to show the Spanish number e.g. "cinco"
+    /// </summary>
+    private void GetRandomSpanishNumber()
+    {
+        string numberInSpanishWord = dictionary.GetRandomSpanishNumberFromDictionary();
+
+        bufferSpanish = numberInSpanishWord;
+
+        canvasForSpanishNumbers.GetComponentInChildren<TMPro.TMP_Text>().text = numberInSpanishWord; // this is a spanish word 
+    }
+
+
     #region Tests
 
     public void StartGameDebug()
@@ -182,6 +210,11 @@ public class Controller : MonoBehaviour
     public void GiveMeaRomanNumber()
     {
         dictionary.GetRomanEquivalentForSpanish("cinco");
+    }
+
+    public void CallRomanAnimation()
+    {
+        OnSpanishAnimationFinished();
     }
 
     #endregion
