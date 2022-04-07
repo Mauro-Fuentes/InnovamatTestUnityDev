@@ -7,14 +7,22 @@ using UnityEngine;
 /// </summary>
 public class AnimatorController : MonoBehaviour
 {
-    public AnimationClip anim1;
+    // It's way easier to reuse animation instead of caching them for Lenght
+    public AnimationClip startAnimation;
+    public AnimationClip romanAnimation;
 
     public Action StartAnimationFinished;
     public Action RomanAnimationFinished;
 
+    private readonly string triggerAnimation = "TriggerAnimation";
+
     private void Start()
     {
-
+        if (!startAnimation || !romanAnimation)
+        {
+            Debug.Log("Provide animations to cache their lenght", this);
+            this.gameObject.SetActive(false);
+        }
     }
 
     public void RunStartAnimation(SpanishCanvasText spanishCanvas)
@@ -22,45 +30,37 @@ public class AnimatorController : MonoBehaviour
         StartCoroutine(StartAnimation(spanishCanvas));
     }
 
-    public void RunRomanAnimation(CanvasForRomanNumbers romanCanvas )
-    {
-        StartCoroutine(RomanAnimation(romanCanvas));
-    }
-
     private IEnumerator StartAnimation(SpanishCanvasText spanishText)
     {
-
-        yield return new WaitForSeconds(0f);
+        yield return new WaitForSeconds(.5f);
 
         var anim = spanishText.GetComponent<Animator>();
 
-        anim.SetTrigger("TriggerAnimation");
+        anim.SetTrigger(triggerAnimation);
 
-        Debug.Log("Spanish Animation");
-
-        var a = anim.GetCurrentAnimatorStateInfo(0);
-        
-        yield return new WaitForSeconds(a.length);
+        yield return new WaitForSeconds(startAnimation.length);
 
         StartAnimationFinished?.Invoke();
     }
 
+    public void RunRomanAnimation(CanvasForRomanNumbers romanCanvas )
+    {
+        StartCoroutine(RomanAnimation(romanCanvas));
+    }
     private IEnumerator RomanAnimation(CanvasForRomanNumbers canvas)
     {
-
-        yield return new WaitForSeconds(0.3f);
-
         var anim = canvas.GetComponent<Animator>();
+        
+        anim.SetTrigger(triggerAnimation);
 
-        anim.SetTrigger("TriggerAnimation");
+        yield return new WaitForSeconds(romanAnimation.length);
 
-        Debug.Log("Roman Animation");
+        RomanAnimationFinished?.Invoke();
+    }
 
-        var a = anim.GetCurrentAnimatorStateInfo(0);
+    public void RunAnimationButtonSucceed()
+    {
 
-        yield return new WaitForSeconds(a.length);
-
-        RomanAnimationFinished.Invoke();
     }
 }
 

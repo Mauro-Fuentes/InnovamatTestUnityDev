@@ -5,6 +5,7 @@ using TMPro;
 
 public class ButtonRomanNumber : MonoBehaviour, IPointerClickHandler
 {
+    // TODO: make private
     public TMP_Text textComponent;
     
     //TODO: make private
@@ -22,11 +23,10 @@ public class ButtonRomanNumber : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        //Debug.Log("Button number " + index + " was clicked");
+
         // El index lo tiene que saber el que lo escucha... no el botón
         ButtonsWasClicked?.Invoke(this);
-
-        //Debug.Log("Button number " + index + " was clicked");
-        //Debug.Log("Button string " + spanishValue + " was clicked");
     }
 
     public void PassRomanNumberToButton(string newButtonNumber)
@@ -34,6 +34,11 @@ public class ButtonRomanNumber : MonoBehaviour, IPointerClickHandler
         romanValue = newButtonNumber; // E.g "1"
 
         UpdateView();
+    }
+
+    public void Deactivate(bool trueOrFalse)
+    {
+
     }
 
     // TODO: Error if they are inactive

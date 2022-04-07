@@ -1,18 +1,18 @@
 ﻿using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
-using System.Collections;
 
+/// <summary>
+/// Change the color of the button. Either Succeed or Error
+/// </summary>
 public class ColorChanger : MonoBehaviour
 {
-    public TMP_Text textMeshPro;
-
+    [Header("Choose colors to display")]
     public Color succeedColor;
     public Color errorColor;
 
     private void Start()
     {
-        //textMeshPro.color = new Color(0.2f, 0.5f, 0.4f, 0.2f);    
+        
     }
 
     public void ChangeColorToSucceed(ButtonRomanNumber button)
@@ -24,20 +24,17 @@ public class ColorChanger : MonoBehaviour
         initialColorBlock.selectedColor = succeedColor;
 
         button.GetComponent<Button>().colors = initialColorBlock;
-
-        //StartCoroutine(chang(asd));
     }
 
-    private IEnumerator chang(ColorBlock asd)
+    public void ChangeColorToError(ButtonRomanNumber button)
     {
-        yield return new WaitForEndOfFrame();
-        asd.normalColor = succeedColor;
-        asd.pressedColor = succeedColor;
-        asd.selectedColor = succeedColor;
+        Debug.Log("Color changed");
+        var initialColorBlock = button.GetComponent<Button>().colors;
+        initialColorBlock.normalColor = errorColor;
+        initialColorBlock.pressedColor = errorColor;
+        initialColorBlock.selectedColor = errorColor;
 
-        var colors = GetComponent<Button>().colors;
-        colors.normalColor = Color.red;
-        GetComponent<Button>().colors = colors;
+        button.GetComponent<Button>().colors = initialColorBlock;
     }
 
 }

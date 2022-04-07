@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class Controller : MonoBehaviour
 {
-    [Header("Select a dictionary")]
+    [Header("Select a dictionary to work with")]
     public DictionaryOfWords dictionary;
 
     [Header("Select the main root of this controller")]
     public Transform mainCanvas;   
     
+    // TODO: make private 
     [SerializeField] public ButtonRomanNumber[] listOfButtonsForRomanNumbers;
 
     public StartButton startButton;
@@ -16,14 +18,15 @@ public class Controller : MonoBehaviour
 
     public SpanishCanvasText canvasForSpanishNumbers; // show the first word and then desappears
 
-    public string bufferSpanish; // uno
-    public string bufferRoman;     // 1
-
-    private int indexMarkedAsCorrect;
-
     public AnimatorController animatorController;
 
     public ColorChanger colorChanger;
+
+    private AciertosCanvasController aciertosCanvasController;
+
+    public string bufferSpanish; // uno
+    public string bufferRoman;     // 1
+    private int indexMarkedAsCorrect;
 
     private void Start()
     {
@@ -36,6 +39,7 @@ public class Controller : MonoBehaviour
         StartListeningToRomanButtons();
         FindStartButton();
         FindColorChanger();
+        FindAciertosCanvasController();
     }
 
     #region Find Dependencies 
@@ -95,6 +99,12 @@ public class Controller : MonoBehaviour
         colorChanger = FindObjectOfType<ColorChanger>();
     }
 
+    private void FindAciertosCanvasController()
+    {
+        aciertosCanvasController = FindObjectOfType<AciertosCanvasController>();
+        if (!aciertosCanvasController) Debug.LogWarning ("Provide a canvas for Aciertos", this);
+    }
+
     #endregion
 
     #region Reaction To Button Actions
@@ -120,18 +130,27 @@ public class Controller : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Control if the game was won
+    /// </summary>
+    /// <param name="indexOfButtonPressed"></param>
     private void CheckIfTheButtonPressedIsTheRightAnswer(int indexOfButtonPressed)
     {
         if (indexMarkedAsCorrect == indexOfButtonPressed)
         {
-            Debug.Log("You did it!!! " + indexOfButtonPressed + bufferSpanish);
+            Debug.Log("You did it!!! " + indexOfButtonPressed + bufferSpanish); // here I already know the game was won
+
+            //DeactivateButtons(true);
+            canvasForRomanNumbers.GetComponent<GraphicRaycaster>().enabled = false;
 
             // Pass button to color Changer
             colorChanger.ChangeColorToSucceed(listOfButtonsForRomanNumbers[indexOfButtonPressed]);
 
             // Aciertos
-
+            aciertosCanvasController.UpdateAciertos();
         }
+
+        StartGame();
     }
 
     #endregion
@@ -207,7 +226,6 @@ public class Controller : MonoBehaviour
 
         canvasForSpanishNumbers.GetComponentInChildren<TMPro.TMP_Text>().text = numberInSpanishWord; // this is a spanish word 
     }
-
 
     #region Tests
 
