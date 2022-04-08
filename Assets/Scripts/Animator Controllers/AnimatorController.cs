@@ -9,7 +9,8 @@ public class AnimatorController : MonoBehaviour
 {
     // It's way easier to reuse animation instead of caching them for Lenght
     public AnimationClip startAnimation;
-    public AnimationClip cardinalAnimation;
+    public AnimationClip cardinalAnimationIN;
+    public AnimationClip cardinalAnimationOUT;
 
     public Action StartAnimationFinished;
     public Action CardinalAnimationFinished;
@@ -21,7 +22,7 @@ public class AnimatorController : MonoBehaviour
 
     private void Start()
     {
-        if (!startAnimation || !cardinalAnimation)
+        if (!startAnimation || !cardinalAnimationIN)
         {
             Debug.Log("Provide animations to cache their lenght", this);
             this.gameObject.SetActive(false);
@@ -43,7 +44,7 @@ public class AnimatorController : MonoBehaviour
         StartAnimationFinished?.Invoke();
     }
 
-    public void RunCardinalAnimation(CanvasForCardinalNumbers cardinalCanvas )
+    public void RunCardinalAnimationIN(CanvasForCardinalNumbers cardinalCanvas )
     {
         StartCoroutine(CardinalAnimation(cardinalCanvas));
     }
@@ -53,7 +54,7 @@ public class AnimatorController : MonoBehaviour
         
         anim.SetTrigger(triggerAnimation);
 
-        yield return new WaitForSeconds(cardinalAnimation.length);
+        yield return new WaitForSeconds(cardinalAnimationIN.length);
 
         CardinalAnimationFinished?.Invoke();
     }
@@ -78,7 +79,7 @@ public class AnimatorController : MonoBehaviour
 
         anim.SetTrigger(triggerAnimationOUT);
 
-        yield return new WaitForSeconds(cardinalAnimation.length);
+        yield return new WaitForSeconds(cardinalAnimationOUT.length);
 
         CardinalAnimationOUTFinished?.Invoke();
     }

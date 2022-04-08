@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 
 /// <summary>
-/// Button for Roman Values
+/// Button for Cardinal Values
 /// </summary>
 public class ButtonCardinalNumber : MonoBehaviour, IPointerClickHandler
 {

@@ -9,27 +9,20 @@ public class Controller : MonoBehaviour
     [Header("Select the main root of this controller")]
     [SerializeField] private Transform mainCanvas;
 
-    public string bufferSpanish; // uno
-    public string bufferCardinal;     // 1
+    private string bufferSpanish;   // "uno"
+    private string bufferCardinal;  // "1"
 
-    [SerializeField] private ButtonCardinalNumber[] listOfButtonsForCardianlNumbers;
-
+    private ButtonCardinalNumber[] listOfButtonsForCardianlNumbers;
     private StartButton startButton;
-
     private CanvasForCardinalNumbers canvasForCardinalNumbers;
-
     private SpanishCanvasText canvasForSpanishNumbers; // show the first word and then desappears
-
     private AnimatorController animatorController;
-
     private CardianlButtonHelper cardinalButtonHelper;
-
     private TrackerCanvasController aciertosCanvasController;
-
     private int indexMarkedAsCorrect;
 
     [SerializeField] private int maxAttempts = 2; // so Devs can change it via inspector
-    public int currentAttemps;
+    private int currentAttemps;
 
     private void Start()
     {
@@ -156,7 +149,7 @@ public class Controller : MonoBehaviour
             cardinalButtonHelper.ChangeButtonState(indexOfButtonPressed, toState: false);
 
             // Aciertos
-            aciertosCanvasController.UpdateAciertos();
+            aciertosCanvasController.AddAciertos();
 
             // Animate
             animatorController.RunAnimateSucceedButton(buttonpressed);
@@ -168,7 +161,7 @@ public class Controller : MonoBehaviour
         {
             cardinalButtonHelper.ChangeColorToError(buttonpressed);
             cardinalButtonHelper.ChangeButtonState(indexOfButtonPressed, toState: false);
-            aciertosCanvasController.UpdateFallos();
+            aciertosCanvasController.AddFallo();
             animatorController.RunAnimateErrorButton(buttonpressed);
         }
     }
@@ -181,7 +174,7 @@ public class Controller : MonoBehaviour
     {
         SetCardinalButtonsForNewData();
 
-        animatorController.RunCardinalAnimation(canvasForCardinalNumbers); // fire and forget?
+        animatorController.RunCardinalAnimationIN(canvasForCardinalNumbers); // fire and forget?
     }
 
     private void OnCardinalAnimationFinished()
@@ -245,8 +238,8 @@ public class Controller : MonoBehaviour
 
     public void Reset()
     {
-        InitialiseAttempts();
-        StartGame();
+        aciertosCanvasController.ForceUpdate();
+        OnCardinalAnimationOUTFinished();
     }
 
     #endregion

@@ -16,7 +16,11 @@ public class DictionaryOfWords : ScriptableObject
     private static string[] spanishNumbers =
         { 
             "cero" , "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez",
-            "once" , "doce", "trece", "catorce", "quince"
+            "once" , "doce", "trece", "catorce", "quince", "dieciséis", "diecisiete", "dieciocho", "diecinueve", "veinte",
+            "veintiuno", "veintidos", "veintitres", "veinticuatro", "veinticinco", "veintiseis", "veintisiete", "veintiocho",
+            "veintinueve", "treinta", "treinta y uno", "treinta y dos", "treinta y tres", "treinta y cuatro", "treinta y cinco",
+            "treinta y seis", "treinta y siete", "treinta y ocho", "treinta y nueve", "cuarenta", "cuarenta y uno", "cuarenta y dos", 
+            "cuarenta y tres", "cuarenta y cuatro"
         };
 
     [SerializeField] private static Dictionary<int, string> SpanishCardinalDictionary = new Dictionary<int, string>() { };
@@ -41,9 +45,9 @@ public class DictionaryOfWords : ScriptableObject
 
             keys[i] = SpanishCardinalDictionary[i];
 
-            foreach (int romanNumber in SpanishCardinalDictionary.Keys)
+            foreach (int cardinalNumber in SpanishCardinalDictionary.Keys)
             {
-                keys[i] = romanNumber.ToString();
+                keys[i] = cardinalNumber.ToString();
             }
 
             values[i] = SpanishCardinalDictionary[i];

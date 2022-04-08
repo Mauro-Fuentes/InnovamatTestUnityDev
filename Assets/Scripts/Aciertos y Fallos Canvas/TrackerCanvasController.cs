@@ -23,7 +23,7 @@ public class TrackerCanvasController : MonoBehaviour
 
         AssertBothAreWorking();
 
-        StartValues();
+        ForceUpdate();
     }
 
     #region Find Dependencies
@@ -49,7 +49,7 @@ public class TrackerCanvasController : MonoBehaviour
         }
     }
 
-    private void StartValues()
+    public void ForceUpdate()
     {
         aciertos = 0;
         fallos = 0;
@@ -64,13 +64,13 @@ public class TrackerCanvasController : MonoBehaviour
         valueForFallos.text = fallos.ToString();
     }
 
-    public void UpdateAciertos()
+    public void AddAciertos()
     {
         aciertos++;
         UpdateView();
     }
 
-    public void UpdateFallos()
+    public void AddFallo()
     {
         fallos++;
         UpdateView();
