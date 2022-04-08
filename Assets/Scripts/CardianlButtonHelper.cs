@@ -41,6 +41,9 @@ public class CardianlButtonHelper : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Restore buttons interactability
+    /// </summary>
     public void RestoreButons()
     {
         foreach (var item in allButtons)
@@ -49,6 +52,11 @@ public class CardianlButtonHelper : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Change if the button is interactable or not
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="toState"></param>
     public void ChangeButtonState(int index, bool toState)
     {
         allButtons[index].GetComponent<Button>().interactable = toState;

@@ -18,7 +18,12 @@ public class CanvasForCardinalNumbers : MonoBehaviour
     public void ActivateCardinalCanvas(bool ToF)
     {
         canvas.enabled = ToF;
-        raycaster.enabled = ToF;
+ 
+    }
+
+    public void ActivateCardinalRaycaster(bool state)
+    {
+        raycaster.enabled = state;
     }
 
 }

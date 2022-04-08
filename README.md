@@ -1,9 +1,9 @@
 # InnovamatTestUnityDev
 
-Unity 2019.4.15f1
-Standar 3D pipeline
-No special packages needed
-This game uses the old input system
+>Unity 2019.4.15f1
+>Standar 3D pipeline
+>No special packages needed
+>This game uses the old input system
 
 To open the project, you can just clone the repo, and use Unity.
 After, recompilation, you should be able to simply play the game.
@@ -24,4 +24,3 @@ I encourage you to implement your own tests.
 Managing stages
 
 Bear in mind that Controller lookup is done inside the Start() loop.
-

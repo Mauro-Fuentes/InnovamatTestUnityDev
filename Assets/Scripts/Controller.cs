@@ -105,13 +105,13 @@ public class Controller : MonoBehaviour
     {
         startButton = FindObjectOfType<StartButton>();
         if (!startButton) return;
-        startButton.StartButtonWasClicked += ReactToStartButton;
+        startButton.StartButtonWasClicked += StartGame;
     }   
     
     private void StartListeningToAnimator()
     {
-        animatorController.StartAnimationFinished += OnSpanishAnimationFinished;
-        animatorController.CardinalAnimationFinished += OnCardinalAnimationFinished;
+        animatorController.StartAnimationFinished += OnStartAnimationFinished;
+        animatorController.CardinalAnimationFinished += OnCardinalAnimationINFinished;
         animatorController.CardinalAnimationOUTFinished += OnCardinalAnimationOUTFinished;
     }
 
@@ -142,7 +142,8 @@ public class Controller : MonoBehaviour
         // succeed
         if (indexMarkedAsCorrect == indexOfButtonPressed)
         {
-            canvasForCardinalNumbers.GetComponent<GraphicRaycaster>().enabled = false;
+            // deactivate raycaster on canvas
+            canvasForCardinalNumbers.ActivateCardinalRaycaster(false);
 
             // Change color of button
             cardinalButtonHelper.ChangeColorToSucceed(buttonpressed);
@@ -172,16 +173,17 @@ public class Controller : MonoBehaviour
 
     #region Reaction To Animation
 
-    private void OnSpanishAnimationFinished()
+    private void OnStartAnimationFinished()
     {
         SetCardinalButtonsForNewData();
 
-        animatorController.RunCardinalAnimationIN(canvasForCardinalNumbers); // fire and forget?
+        animatorController.RunCardinalAnimationIN(canvasForCardinalNumbers); // fire and forget. 
     }
 
-    private void OnCardinalAnimationFinished()
+    private void OnCardinalAnimationINFinished()
     {
         canvasForCardinalNumbers.ActivateCardinalCanvas(true);
+        canvasForCardinalNumbers.ActivateCardinalRaycaster(true);
     }
 
     private void OnCardinalAnimationOUTFinished()
@@ -200,16 +202,11 @@ public class Controller : MonoBehaviour
 
     #region Starters 
 
-    private void ReactToStartButton()
-    {
-        StartGame();
-    }
-
     private void StartGame()
     {
         GetRandomSpanishNumber(); // base of the game
 
-        animatorController.RunStartAnimation(canvasForSpanishNumbers); //Fire and forget
+        animatorController.RunStartAnimation(canvasForSpanishNumbers); //OnStartAnimationFinished() is listening
     }
 
     private void ReStart()
@@ -221,6 +218,12 @@ public class Controller : MonoBehaviour
     {
         // show the player the correct one
         SimulateCorrectAnswer();
+    }
+
+    public void Reset()
+    {
+        aciertosCanvasController.ForceUpdate();
+        OnCardinalAnimationOUTFinished();
     }
 
     private void SimulateCorrectAnswer()
@@ -238,18 +241,7 @@ public class Controller : MonoBehaviour
         ReStart();
     }
 
-    public void Reset()
-    {
-        aciertosCanvasController.ForceUpdate();
-        OnCardinalAnimationOUTFinished();
-    }
-
     #endregion
-
-    //private void ActivateSpanishCanvas(bool ToF)
-    //{
-    //    canvasForSpanishNumbers.GetComponent<Canvas>().enabled = ToF;
-    //}
 
     #region Helpers
 
@@ -315,7 +307,7 @@ public class Controller : MonoBehaviour
 
     public void CallCardinalAnimation()
     {
-        OnSpanishAnimationFinished();
+        OnStartAnimationFinished();
     }
 
     #endregion
