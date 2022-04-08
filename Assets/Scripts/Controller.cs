@@ -50,14 +50,16 @@ public class Controller : MonoBehaviour
     {
         canvasForCardinalNumbers = mainCanvas.GetComponentInChildren<CanvasForCardinalNumbers>(includeInactive: true);
 
-        ActivateCardinalCanvas(false);
+        canvasForCardinalNumbers.ActivateCardinalCanvas(false);
     }
 
     private void FindCanvasForSpanishNumbers()
     {
         canvasForSpanishNumbers = mainCanvas.GetComponentInChildren<SpanishCanvasText>(includeInactive: true);
 
-        ActivateSpanishCanvas(false);
+        canvasForSpanishNumbers.ActivateSpanishCanvas(false);
+
+        //ActivateSpanishCanvas(false);
     }
 
     private void FindButtonsForCardinalNumbers()
@@ -179,12 +181,12 @@ public class Controller : MonoBehaviour
 
     private void OnCardinalAnimationFinished()
     {
-        ActivateCardinalCanvas(true);
+        canvasForCardinalNumbers.ActivateCardinalCanvas(true);
     }
 
     private void OnCardinalAnimationOUTFinished()
     {
-        ActivateCardinalCanvas(true);
+        canvasForCardinalNumbers.ActivateCardinalCanvas(true);
 
         cardinalButtonHelper.RestoreColor();
         cardinalButtonHelper.RestoreButons();
@@ -244,16 +246,10 @@ public class Controller : MonoBehaviour
 
     #endregion
 
-    private void ActivateCardinalCanvas(bool ToF)
-    {
-        canvasForCardinalNumbers.GetComponent<Canvas>().enabled = ToF;
-        canvasForCardinalNumbers.GetComponent<GraphicRaycaster>().enabled = ToF;
-    }
-
-    private void ActivateSpanishCanvas(bool ToF)
-    {
-        canvasForSpanishNumbers.GetComponent<Canvas>().enabled = ToF;
-    }
+    //private void ActivateSpanishCanvas(bool ToF)
+    //{
+    //    canvasForSpanishNumbers.GetComponent<Canvas>().enabled = ToF;
+    //}
 
     #region Helpers
 
@@ -295,7 +291,7 @@ public class Controller : MonoBehaviour
 
         bufferSpanish = numberInSpanishWord;
 
-        canvasForSpanishNumbers.GetComponentInChildren<TMPro.TMP_Text>().text = numberInSpanishWord; // this is a spanish word 
+        canvasForSpanishNumbers.UpdateView(numberInSpanishWord);
     }
 
     #endregion
