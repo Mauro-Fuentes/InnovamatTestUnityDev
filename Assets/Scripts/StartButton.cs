@@ -14,7 +14,6 @@ public class StartButton : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        //Debug.Log("Start was pressed");
         StartButtonWasClicked?.Invoke();
     }
 }

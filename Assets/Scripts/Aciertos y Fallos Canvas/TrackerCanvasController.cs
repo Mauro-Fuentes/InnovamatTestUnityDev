@@ -1,8 +1,10 @@
-﻿using System;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
-public class AciertosCanvasController : MonoBehaviour
+/// <summary>
+/// Concrete Aciertos y Fallos UI controller
+/// </summary>
+public class TrackerCanvasController : MonoBehaviour
 {
     [Header("Add Text for Aciertos")]
     public TMP_Text valueForAciertos;
@@ -56,16 +58,21 @@ public class AciertosCanvasController : MonoBehaviour
 
     #endregion
 
-    public void UpdateAciertos()
-    {
-        aciertos++;
-        UpdateView();
-    }
-
     private void UpdateView()
     {
         valueForAciertos.text = aciertos.ToString();
         valueForFallos.text = fallos.ToString();
     }
 
+    public void UpdateAciertos()
+    {
+        aciertos++;
+        UpdateView();
+    }
+
+    public void UpdateFallos()
+    {
+        fallos++;
+        UpdateView();
+    }
 }

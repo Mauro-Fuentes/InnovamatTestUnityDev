@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Dictionary with equivalent roman/spanish number
+/// Dictionary with equivalent cardinal/spanish number
 /// </summary>
-/// Always a roman[0] "0" is spanish[0] "cero"
+/// Always a cardinal[0] "0" is spanish[0] "cero" respectively
 
 [CreateAssetMenu(fileName = "New Dictionary", menuName = "words")]
 public class DictionaryOfWords : ScriptableObject
@@ -19,12 +19,12 @@ public class DictionaryOfWords : ScriptableObject
             "once" , "doce", "trece", "catorce", "quince"
         };
 
-    [SerializeField] private static Dictionary<int, string> SpanishRomanDictionary = new Dictionary<int, string>() { };
+    [SerializeField] private static Dictionary<int, string> SpanishCardinalDictionary = new Dictionary<int, string>() { };
 
-    // the problem with OnEnable is that if I don't open the file it's not serialize by unity
+    // the problem with OnEnable is that if I don't open the file it's not serialized by unity
     private void OnEnable()
     {
-        if (SpanishRomanDictionary.Count > 0) { return; }
+        if (SpanishCardinalDictionary.Count > 0) { return; }
 
         // pair keys and values
         keys = new string[spanishNumbers.Length];
@@ -37,22 +37,22 @@ public class DictionaryOfWords : ScriptableObject
     {
         for (int i = 0; i < spanishNumbers.Length; i++)
         {
-            SpanishRomanDictionary.Add(i, spanishNumbers[i]);
+            SpanishCardinalDictionary.Add(i, spanishNumbers[i]);
 
-            keys[i] = SpanishRomanDictionary[i];
+            keys[i] = SpanishCardinalDictionary[i];
 
-            foreach (int romanNumber in SpanishRomanDictionary.Keys)
+            foreach (int romanNumber in SpanishCardinalDictionary.Keys)
             {
                 keys[i] = romanNumber.ToString();
             }
 
-            values[i] = SpanishRomanDictionary[i];
+            values[i] = SpanishCardinalDictionary[i];
         }
     }
 
-    public string GetRomanEquivalentForSpanish(string spanishValue)
+    public string GetCardinalEquivalentForSpanish(string spanishValue)
     {
-        foreach (var pair in SpanishRomanDictionary)
+        foreach (var pair in SpanishCardinalDictionary)
         {
             if (pair.Value == spanishValue)
             {
@@ -63,18 +63,18 @@ public class DictionaryOfWords : ScriptableObject
         return "0";
     }
     
-    public string GetRandomSpanishNumberFromDictionary()
+    public string GetRandomSpanishNumber()
     {
         var randomInt = GetCheapRandomInt();
 
-        return SpanishRomanDictionary[randomInt]; // returns a value : "trece"
+        return SpanishCardinalDictionary[randomInt]; // returns a value : "trece"
     }
 
-    public string GetRandomRomanNumberFromDictionary()
+    public string GetRandomCardinalNumber()
     {
         int randomInt = GetCheapRandomInt();
 
-        foreach (var pair in SpanishRomanDictionary)
+        foreach (var pair in SpanishCardinalDictionary)
         {
             if (pair.Key == randomInt)
             {

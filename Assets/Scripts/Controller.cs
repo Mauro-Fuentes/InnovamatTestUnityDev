@@ -4,42 +4,46 @@ using UnityEngine.UI;
 public class Controller : MonoBehaviour
 {
     [Header("Select a dictionary to work with")]
-    public DictionaryOfWords dictionary;
+    [SerializeField] private DictionaryOfWords dictionary;
 
     [Header("Select the main root of this controller")]
-    public Transform mainCanvas;   
-    
-    // TODO: make private 
-    [SerializeField] public ButtonRomanNumber[] listOfButtonsForRomanNumbers;
-
-    public StartButton startButton;
-
-    public CanvasForRomanNumbers canvasForRomanNumbers;
-
-    public SpanishCanvasText canvasForSpanishNumbers; // show the first word and then desappears
-
-    public AnimatorController animatorController;
-
-    public ColorChanger colorChanger;
-
-    private AciertosCanvasController aciertosCanvasController;
+    [SerializeField] private Transform mainCanvas;
 
     public string bufferSpanish; // uno
-    public string bufferRoman;     // 1
+    public string bufferCardinal;     // 1
+
+    [SerializeField] private ButtonCardinalNumber[] listOfButtonsForCardianlNumbers;
+
+    private StartButton startButton;
+
+    private CanvasForCardinalNumbers canvasForCardinalNumbers;
+
+    private SpanishCanvasText canvasForSpanishNumbers; // show the first word and then desappears
+
+    private AnimatorController animatorController;
+
+    private CardianlButtonHelper cardinalButtonHelper;
+
+    private TrackerCanvasController aciertosCanvasController;
+
     private int indexMarkedAsCorrect;
+
+    [SerializeField] private int maxAttempts = 2; // so Devs can change it via inspector
+    public int currentAttemps;
 
     private void Start()
     {
         CheckDictionary();
-        FindCanvasForRomanNumbers();
+        FindCanvasForCardinalNumbers();
         FindCanvasForSpanishNumbers();
         FindAnimatorController();
         StartListeningToAnimator();
-        FindButtonsForRomanNumbers();
-        StartListeningToRomanButtons();
+        FindButtonsForCardinalNumbers();
+        StartListeningToCardinalButtons();
         FindStartButton();
         FindColorChanger();
         FindAciertosCanvasController();
+        InitialiseAttempts();
     }
 
     #region Find Dependencies 
@@ -49,11 +53,11 @@ public class Controller : MonoBehaviour
         if (dictionary == null) Debug.LogWarning("There's no dictionary, please provide one", this);
     }
 
-    private void FindCanvasForRomanNumbers()
+    private void FindCanvasForCardinalNumbers()
     {
-        canvasForRomanNumbers = mainCanvas.GetComponentInChildren<CanvasForRomanNumbers>(includeInactive: true);
+        canvasForCardinalNumbers = mainCanvas.GetComponentInChildren<CanvasForCardinalNumbers>(includeInactive: true);
 
-        ActivateRomanCanvas(false);
+        ActivateCardinalCanvas(false);
     }
 
     private void FindCanvasForSpanishNumbers()
@@ -63,31 +67,10 @@ public class Controller : MonoBehaviour
         ActivateSpanishCanvas(false);
     }
 
-    private void FindButtonsForRomanNumbers()
+    private void FindButtonsForCardinalNumbers()
     {
-        listOfButtonsForRomanNumbers = mainCanvas.GetComponentsInChildren<ButtonRomanNumber>(includeInactive: true);
-    }
-    
-    private void StartListeningToRomanButtons()
-    {
-        for (int i = 0; i<listOfButtonsForRomanNumbers.Length; i++)
-        {
-            listOfButtonsForRomanNumbers[i].ButtonsWasClicked += ReactToRomanButton;
-        }
-    }
-
-    private void StartListeningToAnimator()
-    {
-        animatorController.StartAnimationFinished += OnSpanishAnimationFinished;
-        animatorController.RomanAnimationFinished += OnRomanAnimationFinished;
-    }
-
-    private void FindStartButton()
-    {
-        startButton = FindObjectOfType<StartButton>();
-        if (!startButton) return;
-        startButton.StartButtonWasClicked += ReactToStartButton;
-    }
+        listOfButtonsForCardianlNumbers = mainCanvas.GetComponentsInChildren<ButtonCardinalNumber>(includeInactive: true);
+    }    
 
     private void FindAnimatorController()
     {
@@ -96,64 +79,136 @@ public class Controller : MonoBehaviour
 
     private void FindColorChanger()
     {
-        colorChanger = FindObjectOfType<ColorChanger>();
+        cardinalButtonHelper = FindObjectOfType<CardianlButtonHelper>();
+        cardinalButtonHelper.Initialise(listOfButtonsForCardianlNumbers);
     }
 
     private void FindAciertosCanvasController()
     {
-        aciertosCanvasController = FindObjectOfType<AciertosCanvasController>();
+        aciertosCanvasController = FindObjectOfType<TrackerCanvasController>();
         if (!aciertosCanvasController) Debug.LogWarning ("Provide a canvas for Aciertos", this);
+    }
+
+    private void InitialiseAttempts()
+    {
+        currentAttemps = maxAttempts;
     }
 
     #endregion
 
-    #region Reaction To Button Actions
+    #region Register for events/ callbacks
 
-    private void ReactToStartButton()
+    private void StartListeningToCardinalButtons()
     {
-        Debug.Log("Start game");
-
-        StartGame();
+        for (int i = 0; i<listOfButtonsForCardianlNumbers.Length; i++)
+        {
+            listOfButtonsForCardianlNumbers[i].ButtonsWasClicked += ReactToCardinalButton;
+        }
     }
 
-    private void ReactToRomanButton(ButtonRomanNumber buttonpressed)
+    private void FindStartButton()
     {
-        // this gets the index of button
-        for (int i = 0; i < listOfButtonsForRomanNumbers.Length; i++)
+        startButton = FindObjectOfType<StartButton>();
+        if (!startButton) return;
+        startButton.StartButtonWasClicked += ReactToStartButton;
+    }   
+    
+    private void StartListeningToAnimator()
+    {
+        animatorController.StartAnimationFinished += OnSpanishAnimationFinished;
+        animatorController.CardinalAnimationFinished += OnCardinalAnimationFinished;
+        animatorController.CardinalAnimationOUTFinished += OnCardinalAnimationOUTFinished;
+    }
+
+    #endregion
+
+    #region Reaction To Cardinal Buttons
+
+    private void ReactToCardinalButton(ButtonCardinalNumber buttonpressed)
+    {
+        // React only to button pressed. Get its index
+        for (int i = 0; i < listOfButtonsForCardianlNumbers.Length; i++)
         {
-            if (listOfButtonsForRomanNumbers[i] == buttonpressed)
+            if (listOfButtonsForCardianlNumbers[i] == buttonpressed)
             {
-                Debug.Log("Button " + i + " was pressed");
-                CheckIfTheButtonPressedIsTheRightAnswer(i);
+                CheckIfButtonPressedIsTheRightAnswer(i, buttonpressed);
+
                 return;
             }
         }
     }
 
-    /// <summary>
-    /// Control if the game was won
-    /// </summary>
-    /// <param name="indexOfButtonPressed"></param>
-    private void CheckIfTheButtonPressedIsTheRightAnswer(int indexOfButtonPressed)
+    private void CheckIfButtonPressedIsTheRightAnswer(int indexOfButtonPressed, ButtonCardinalNumber buttonpressed)
     {
+        currentAttemps--;
+
+        if (currentAttemps == 0) { ReStartWithCorrection(); };
+
+        // succeed
         if (indexMarkedAsCorrect == indexOfButtonPressed)
         {
-            Debug.Log("You did it!!! " + indexOfButtonPressed + bufferSpanish); // here I already know the game was won
+            canvasForCardinalNumbers.GetComponent<GraphicRaycaster>().enabled = false;
 
-            //DeactivateButtons(true);
-            canvasForRomanNumbers.GetComponent<GraphicRaycaster>().enabled = false;
+            // Change color of button
+            cardinalButtonHelper.ChangeColorToSucceed(buttonpressed);
 
-            // Pass button to color Changer
-            colorChanger.ChangeColorToSucceed(listOfButtonsForRomanNumbers[indexOfButtonPressed]);
+            // Deactivate button
+            cardinalButtonHelper.ChangeButtonState(indexOfButtonPressed, toState: false);
 
             // Aciertos
             aciertosCanvasController.UpdateAciertos();
+
+            // Animate
+            animatorController.RunAnimateSucceedButton(buttonpressed);
+
+            ReStart();
         }
+
+        else
+        {
+            cardinalButtonHelper.ChangeColorToError(buttonpressed);
+            cardinalButtonHelper.ChangeButtonState(indexOfButtonPressed, toState: false);
+            aciertosCanvasController.UpdateFallos();
+            animatorController.RunAnimateErrorButton(buttonpressed);
+        }
+    }
+
+    #endregion
+
+    #region Reaction To Animation
+
+    private void OnSpanishAnimationFinished()
+    {
+        SetCardinalButtonsForNewData();
+
+        animatorController.RunCardinalAnimation(canvasForCardinalNumbers); // fire and forget?
+    }
+
+    private void OnCardinalAnimationFinished()
+    {
+        ActivateCardinalCanvas(true);
+    }
+
+    private void OnCardinalAnimationOUTFinished()
+    {
+        ActivateCardinalCanvas(true);
+
+        cardinalButtonHelper.RestoreColor();
+        cardinalButtonHelper.RestoreButons();
+
+        InitialiseAttempts();
 
         StartGame();
     }
 
     #endregion
+
+    #region Starters 
+
+    private void ReactToStartButton()
+    {
+        StartGame();
+    }
 
     private void StartGame()
     {
@@ -162,25 +217,44 @@ public class Controller : MonoBehaviour
         animatorController.RunStartAnimation(canvasForSpanishNumbers); //Fire and forget
     }
 
-    private void OnSpanishAnimationFinished()
+    private void ReStart()
     {
-        Debug.Log("Spanish finished");
-
-        PrepareRomanButtonsToDisplayNewSetOfNumbers();
-
-        animatorController.RunRomanAnimation(canvasForRomanNumbers);
+        animatorController.RunCardinalAnimationOut(canvasForCardinalNumbers); //Fire and forget
     }
 
-    private void OnRomanAnimationFinished()
+    private void ReStartWithCorrection()
     {
-        Debug.Log("Roman Finished");
-
-        ActivateRomanCanvas(true);
+        // show the player the correct one
+        SimulateCorrectAnswer();
     }
 
-    private void ActivateRomanCanvas(bool ToF)
+    private void SimulateCorrectAnswer()
     {
-        canvasForRomanNumbers.GetComponent<Canvas>().enabled = ToF;
+        var correctButton = listOfButtonsForCardianlNumbers[indexMarkedAsCorrect];
+
+        canvasForCardinalNumbers.GetComponent<GraphicRaycaster>().enabled = false;
+
+        // Change color of button
+        cardinalButtonHelper.ChangeColorToSucceed(correctButton);
+
+        // Animate
+        animatorController.RunAnimateSucceedButton(correctButton);
+
+        ReStart();
+    }
+
+    public void Reset()
+    {
+        InitialiseAttempts();
+        StartGame();
+    }
+
+    #endregion
+
+    private void ActivateCardinalCanvas(bool ToF)
+    {
+        canvasForCardinalNumbers.GetComponent<Canvas>().enabled = ToF;
+        canvasForCardinalNumbers.GetComponent<GraphicRaycaster>().enabled = ToF;
     }
 
     private void ActivateSpanishCanvas(bool ToF)
@@ -188,30 +262,34 @@ public class Controller : MonoBehaviour
         canvasForSpanishNumbers.GetComponent<Canvas>().enabled = ToF;
     }
 
+    #region Helpers
+
     /// <summary>
-    /// From the three buttons... choose 1 and pass the same GetRandomSpanish (that one is the correct answer)
+    /// Add the value GetRandomSpanish to one of the three buttons (that one is the correct answer)
     /// </summary>
-    private void PrepareRomanButtonsToDisplayNewSetOfNumbers()
+    private void SetCardinalButtonsForNewData()
     {
-        // The correct number is the spanish buffer; "Cinco"
-        bufferRoman = dictionary.GetRomanEquivalentForSpanish(spanishValue: bufferSpanish);
+        // Store the equivalente of bufferSpanish into bufferCardinal
+        bufferCardinal = dictionary.GetCardinalEquivalentForSpanish(spanishValue: bufferSpanish);
 
         // select one of the three buttons THIS INT is the correct answer: say button [1]
-        indexMarkedAsCorrect = Random.Range(0, listOfButtonsForRomanNumbers.Length);
+        indexMarkedAsCorrect = Random.Range(0, listOfButtonsForCardianlNumbers.Length);
 
-        // pass the spanish "cinco". Use the random index above. Say use button [1] pass the "ROMAN REFERENCE"
-        listOfButtonsForRomanNumbers[indexMarkedAsCorrect].PassRomanNumberToButton(bufferRoman);
+        // Use the random index above to pass the Cardinal Value
+        listOfButtonsForCardianlNumbers[indexMarkedAsCorrect].PassCardinalNumberToButton(bufferCardinal);
 
-        //parse the rest of number and put random values to them
-        for (int i = 0; i < listOfButtonsForRomanNumbers.Length; i++)
+        //parse the rest of numbers and put random values to them // they cannot be the correct answer
+        for (int i = 0; i < listOfButtonsForCardianlNumbers.Length; i++)
         {
             // Don't touch the selected one
             if (i == indexMarkedAsCorrect) continue;
 
             // get some other random number for the rest of buttons
-            string randomRoman = dictionary.GetRandomRomanNumberFromDictionary();
+            string randomCardinal = dictionary.GetRandomCardinalNumber();
 
-            listOfButtonsForRomanNumbers[i].PassRomanNumberToButton(randomRoman);
+            if (randomCardinal == bufferSpanish) Debug.Log("Equal Numbers");
+
+            listOfButtonsForCardianlNumbers[i].PassCardinalNumberToButton(randomCardinal);
         }
     }
 
@@ -220,12 +298,14 @@ public class Controller : MonoBehaviour
     /// </summary>
     private void GetRandomSpanishNumber()
     {
-        string numberInSpanishWord = dictionary.GetRandomSpanishNumberFromDictionary();
+        string numberInSpanishWord = dictionary.GetRandomSpanishNumber();
 
         bufferSpanish = numberInSpanishWord;
 
         canvasForSpanishNumbers.GetComponentInChildren<TMPro.TMP_Text>().text = numberInSpanishWord; // this is a spanish word 
     }
+
+    #endregion
 
     #region Tests
 
@@ -239,12 +319,12 @@ public class Controller : MonoBehaviour
         GetRandomSpanishNumber();
     }
 
-    public void GiveMeaRomanNumber()
+    public void GiveMeACardinalNumber()
     {
-        dictionary.GetRomanEquivalentForSpanish("cinco");
+        dictionary.GetCardinalEquivalentForSpanish("cinco");
     }
 
-    public void CallRomanAnimation()
+    public void CallCardinalAnimation()
     {
         OnSpanishAnimationFinished();
     }

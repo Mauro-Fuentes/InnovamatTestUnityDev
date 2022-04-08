@@ -10,7 +10,7 @@ public class FromHereToThere : AnimationType { }
 /// <summary>
 /// Variant of AnimatorController but for animation through code
 /// </summary>
-public class AnimatorControllerCode : MonoBehaviour
+public class AnimatorControllerByCode : MonoBehaviour
 {
     SimulateAnimation simulateAnimation = new SimulateAnimation();
     FromTopToBottonAnimation fromTopToBottonAnimation = new FromTopToBottonAnimation();
