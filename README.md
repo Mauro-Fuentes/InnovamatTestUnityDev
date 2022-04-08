@@ -22,3 +22,6 @@ The most important class is Controller.cs as this program follows a mediator pat
 
 If you need to test classes, you can find Debugger.cs. You can call it during the game by pressing P on the keyboard.
 I encourage you to implement your own tests.
+
+If you don't have Unity, you can download the build here:
+(https://drive.google.com/drive/folders/1ObKo0w2loXKbVrGAjwyYoOP7zAWZiPdl?usp=sharing)
