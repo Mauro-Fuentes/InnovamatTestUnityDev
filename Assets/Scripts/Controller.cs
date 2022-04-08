@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Controller : MonoBehaviour
@@ -23,6 +24,8 @@ public class Controller : MonoBehaviour
 
     [SerializeField] private int maxAttempts = 2; // so Devs can change it via inspector
     private int currentAttemps;
+
+    public Action GameWasWon;
 
     private void Start()
     {
@@ -148,14 +151,17 @@ public class Controller : MonoBehaviour
             // Change color of button
             cardinalButtonHelper.ChangeColorToSucceed(buttonpressed);
 
-            // Deactivate button
-            cardinalButtonHelper.ChangeButtonState(indexOfButtonPressed, toState: false);
+            // Deactivate ALL buttons
+            //cardinalButtonHelper.ChangeButtonState(indexOfButtonPressed, toState: false);
+            cardinalButtonHelper.ChangeButtonInteractabilityTo(false);
 
             // Aciertos
             aciertosCanvasController.AddAciertos();
 
             // Animate
             animatorController.RunAnimateSucceedButton(buttonpressed);
+
+            GameWasWon?.Invoke();
 
             ReStart();
         }
@@ -191,7 +197,7 @@ public class Controller : MonoBehaviour
         canvasForCardinalNumbers.ActivateCardinalCanvas(true);
 
         cardinalButtonHelper.RestoreColor();
-        cardinalButtonHelper.RestoreButons();
+        cardinalButtonHelper.ChangeButtonInteractabilityTo(true);
 
         InitialiseAttempts();
 
@@ -230,7 +236,8 @@ public class Controller : MonoBehaviour
     {
         var correctButton = listOfButtonsForCardianlNumbers[indexMarkedAsCorrect];
 
-        canvasForCardinalNumbers.GetComponent<GraphicRaycaster>().enabled = false;
+        canvasForCardinalNumbers.ActivateCardinalRaycaster(false);
+        cardinalButtonHelper.ChangeButtonInteractabilityTo(false);
 
         // Change color of button
         cardinalButtonHelper.ChangeColorToSucceed(correctButton);
@@ -254,7 +261,7 @@ public class Controller : MonoBehaviour
         bufferCardinal = dictionary.GetCardinalEquivalentForSpanish(spanishValue: bufferSpanish);
 
         // select one of the three buttons THIS INT is the correct answer: say button [1]
-        indexMarkedAsCorrect = Random.Range(0, listOfButtonsForCardianlNumbers.Length);
+        indexMarkedAsCorrect = UnityEngine.Random.Range(0, listOfButtonsForCardianlNumbers.Length);
 
         // Use the random index above to pass the Cardinal Value
         listOfButtonsForCardianlNumbers[indexMarkedAsCorrect].PassCardinalNumberToButton(bufferCardinal);
